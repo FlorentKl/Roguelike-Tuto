@@ -1,0 +1,259 @@
+use super::components::*;
+use specs::error::NoError;
+use specs::prelude::*;
+use specs::saveload::{
+    DeserializeComponents, MarkedBuilder, SerializeComponents, SimpleMarker, SimpleMarkerAllocator,
+};
+use std::fs;
+use std::fs::File;
+use std::path::Path;
+
+macro_rules! serialize_individually {
+    ($ecs:expr, $ser:expr, $data:expr, $( $type:ty),*) => {
+        $(
+        SerializeComponents::<NoError, SimpleMarker<SerializeMe>>::serialize(
+            &( $ecs.read_storage::<$type>(), ),
+            &$data.0,
+            &$data.1,
+            &mut $ser,
+        )
+        .unwrap();
+        )*
+    };
+}
+
+macro_rules! deserialize_individually {
+    ($ecs:expr, $de:expr, $data:expr, $( $type:ty),*) => {
+        $(
+        DeserializeComponents::<NoError, _>::deserialize(
+            &mut ( &mut $ecs.write_storage::<$type>(), ),
+            &mut $data.0, // entities
+            &mut $data.1, // marker
+            &mut $data.2, // allocater
+            &mut $de,
+        )
+        .unwrap();
+        )*
+    };
+}
+
+pub fn does_save_exist() -> bool {
+    Path::new("./savegame.json").exists()
+}
+
+//Won't compile if use of Web Assembly because wasm can't write file
+//so mock function to not save anything
+#[cfg(target_arch = "wasm32")]
+pub fn save_game(_ecs: &mut World) {}
+
+//Compile only if not wasm32 compilation
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_game(ecs: &mut World) {
+    //create helper
+
+    let mapcopy = ecs.get_mut::<super::map::Map>().unwrap().clone();
+    let dungeon_master = ecs
+        .get_mut::<super::map::MasterDungeonMap>()
+        .unwrap()
+        .clone();
+    let savehelper = ecs
+        .create_entity()
+        .with(SerializationHelper { map: mapcopy })
+        .marked::<SimpleMarker<SerializeMe>>()
+        .build();
+    let savehelper2 = ecs
+        .create_entity()
+        .with(DMSerializationHelper {
+            map: dungeon_master,
+        })
+        .marked::<SimpleMarker<SerializeMe>>()
+        .build();
+
+    //Serialize
+    {
+        let data = (
+            ecs.entities(),
+            ecs.read_storage::<SimpleMarker<SerializeMe>>(),
+        );
+
+        let writer = File::create("./savegame.json").unwrap();
+        let mut serializer = serde_json::Serializer::new(writer);
+        serialize_individually!(
+            ecs,
+            serializer,
+            data,
+            Position,
+            Renderable,
+            Player,
+            Monster,
+            Bystander,
+            Vendor,
+            Quips,
+            Targetable,
+            Item,
+            Consumable,
+            ProvidesHealing,
+            Viewshed,
+            Name,
+            BlocksTile,
+            SufferDamage,
+            Ranged,
+            InflictsDamage,
+            AreaOfEffect,
+            Confusion,
+            Equippable,
+            MeleeWeapon,
+            Wearable,
+            ParticleLifetime,
+            HungerClock,
+            ProvidesFood,
+            MagicMapper,
+            Hidden,
+            EntryTrigger,
+            EntityMoved,
+            SingleActivation,
+            BlocksVisibility,
+            Door,
+            Attributes,
+            Skills,
+            Pools,
+            NaturalAttackDefense,
+            LootTable,
+            Carnivore,
+            Herbivore,
+            OtherLevelPosition,
+            //With entity
+            InBackpack,
+            WantsToMelee,
+            WantsToMelee,
+            WantsToUseItem,
+            WantsToDropItem,
+            Equipped,
+            WantsToRemoveItem,
+            SerializationHelper,
+            DMSerializationHelper
+        );
+    }
+
+    // Clean up
+    ecs.delete_entity(savehelper).expect("Crash on cleanup");
+    ecs.delete_entity(savehelper2).expect("Crash on cleanup");
+}
+
+pub fn load_game(ecs: &mut World) {
+    {
+        //Delete everything by adding entities to a Vector
+        //Then Delete every entities in the world that is in the vector
+        //Done in two time to avoid invalidating iterator in the first pass
+        let mut to_delete = Vec::new();
+        for e in ecs.entities().join() {
+            to_delete.push(e);
+        }
+        for del in to_delete.iter() {
+            ecs.delete_entity(*del).expect("Deletion failed");
+        }
+    }
+
+    let data = fs::read_to_string("./savegame.json").unwrap();
+    let mut de = serde_json::Deserializer::from_str(&data);
+
+    {
+        let mut d = (
+            &mut ecs.entities(),
+            &mut ecs.write_storage::<SimpleMarker<SerializeMe>>(),
+            &mut SimpleMarkerAllocator::<SerializeMe>::new(),
+        );
+        deserialize_individually!(
+            ecs,
+            de,
+            d,
+            Position,
+            Renderable,
+            Player,
+            Monster,
+            Bystander,
+            Vendor,
+            Quips,
+            Targetable,
+            Item,
+            Consumable,
+            ProvidesHealing,
+            Viewshed,
+            Name,
+            BlocksTile,
+            SufferDamage,
+            Ranged,
+            InflictsDamage,
+            AreaOfEffect,
+            Confusion,
+            Equippable,
+            MeleeWeapon,
+            Wearable,
+            ParticleLifetime,
+            HungerClock,
+            ProvidesFood,
+            MagicMapper,
+            Hidden,
+            EntryTrigger,
+            EntityMoved,
+            SingleActivation,
+            BlocksVisibility,
+            Door,
+            Attributes,
+            Skills,
+            Pools,
+            NaturalAttackDefense,
+            LootTable,
+            Carnivore,
+            Herbivore,
+            OtherLevelPosition,
+            //with entity
+            InBackpack,
+            WantsToMelee,
+            WantsToMelee,
+            WantsToUseItem,
+            WantsToDropItem,
+            Equipped,
+            WantsToRemoveItem,
+            SerializationHelper,
+            DMSerializationHelper
+        );
+    }
+
+    let mut deleteme: Option<Entity> = None;
+    let mut deleteme2: Option<Entity> = None;
+    {
+        let entities = ecs.entities();
+        let helper = ecs.read_storage::<SerializationHelper>();
+        let helper2 = ecs.read_storage::<DMSerializationHelper>();
+        let player = ecs.read_storage::<Player>();
+        let position = ecs.read_storage::<Position>();
+        for (e, h) in (&entities, &helper).join() {
+            let mut worldmap = ecs.write_resource::<super::map::Map>();
+            *worldmap = h.map.clone();
+            worldmap.tile_content = vec![Vec::new(); (worldmap.height * worldmap.width) as usize];
+            deleteme = Some(e);
+        }
+        for (e, h) in (&entities, &helper2).join() {
+            let mut dungeonmaster = ecs.write_resource::<super::map::MasterDungeonMap>();
+            *dungeonmaster = h.map.clone();
+            deleteme2 = Some(e);
+        }
+        for (e, _p, pos) in (&entities, &player, &position).join() {
+            let mut ppos = ecs.write_resource::<rltk::Point>();
+            *ppos = rltk::Point::new(pos.x, pos.y);
+            let mut player_resource = ecs.write_resource::<Entity>();
+            *player_resource = e;
+        }
+    }
+    ecs.delete_entity(deleteme.unwrap())
+        .expect("Unable to delete helper");
+    ecs.delete_entity(deleteme2.unwrap())
+        .expect("Unable to delete helper");
+}
+
+pub fn delete_save() {
+    if Path::new("./savegame.json").exists() {
+        std::fs::remove_file("./savegame.json").expect("Unable to delete file");
+    }
+}
