@@ -11,7 +11,7 @@
 "faction_table" : [
     { "name" : "Player", "responses": { }},
     { "name" : "Mindless", "responses": { "Default" : "attack" } },
-    { "name" : "Townsfolk", "responses" : { "Default" : "ignore" } },
+    { "name" : "Townsfolk", "responses" : { "Default" : "flee", "Player" : "ignore", "Townsfolk" : "ignore" } },
     { "name" : "Bandits", "responses" : { "Default" : "attack" } },
     { "name" : "Cave Goblins", "responses" : { "Default" : "attack" } },
     { "name" : "Carnivores", "responses" : { "Default" : "attack" } },
@@ -440,7 +440,6 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "vendor",
         "attributes" : {
             "intelligence" : 13
         },
@@ -448,6 +447,7 @@
             "Melee" : 2
         },
         "equipped" : [ "Cudgel", "Cloth Tunic", "Cloth Pants", "Slippers" ],
+        "movement" : "static",
         "faction" : "Townsfolk"
     },
 
@@ -461,8 +461,8 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "vendor",
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Townsfolk"
     },
 
@@ -476,9 +476,9 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "quips" : [ "Quiet down, it's too early!", "Oh my, I drank too much.", "Still saving the world, eh?" ],
         "attributes" : {},
+        "movement" : "random",
         "faction" : "Townsfolk"
     },
 
@@ -492,8 +492,8 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Townsfolk"
     },
 
@@ -507,9 +507,9 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "quips" : [ "Great to see a new face here!", "I hear there's going to be a good sermon on tea", "Want some cake?" ],
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Townsfolk"
     },
 
@@ -523,8 +523,8 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "vendor",
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Townsfolk"
     },
 
@@ -538,8 +538,8 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "vendor",
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Townsfolk"
     },
 
@@ -553,8 +553,8 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "vendor",
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Townsfolk"
     },
 
@@ -568,9 +568,9 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "quips" : [ "Hello, dear", "Off saving the world again?", "Be careful in the dungeon!", "Your father would be so proud, were he here." ],
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Townsfolk"
     },
 
@@ -584,9 +584,9 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "quips" : [ "Why are you in my house?" ],
         "attributes" : {},
+        "movement" : "random_waypoint",
         "faction" : "Townsfolk"
     },
 
@@ -600,9 +600,9 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "quips" : [ "Lovely day, eh?", "Nice weather", "Hello" ],
         "attributes" : {},
+        "movement" : "random_waypoint",
         "faction" : "Townsfolk"
     },
 
@@ -616,9 +616,9 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "quips" : [ "They're biting today!", "I caught something, but it wasn't a fish!", "Looks like rain" ],
         "attributes" : {},
+        "movement" : "random_waypoint",
         "faction" : "Townsfolk"
     },
 
@@ -632,9 +632,9 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "quips" : [ "Arrr", "Grog!", "Booze!" ],
         "attributes" : {},
+        "movement" : "random_waypoint",
         "faction" : "Townsfolk"
     },
 
@@ -648,9 +648,9 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "bystander",
         "quips" : [ "Hic", "Need... more... booze!", "Spare a copper?" ],
         "attributes" : {},
+        "movement" : "random",
         "faction" : "Townsfolk"
     },
 
@@ -664,7 +664,6 @@
         },
         "blocks_tile" : true,
         "vision_range" : 8,
-        "ai" : "melee",
         "attributes" : {
             "Might" : 3,
             "Fitness" : 3
@@ -677,8 +676,9 @@
             "armor_class" : 11,
             "attacks" : [
                 { "name" : "bite", "hit_bonus" : 0, "damage" : "1d4" }
-            ]   
+            ]
         },
+        "movement" : "static",
         "faction" : "Hungry Rodents"
     },
 
@@ -692,8 +692,8 @@
         },
         "blocks_tile" : true,
         "vision_range" : 8,
-        "ai" : "melee",
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Cave Goblins"
     },
 
@@ -707,8 +707,8 @@
         },
         "blocks_tile" : true,
         "vision_range" : 8,
-        "ai" : "melee",
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Cave Goblins"
     },
 
@@ -722,10 +722,11 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "melee",
         "attributes" : {},
+        "movement" : "static",
         "faction" : "Cave Goblins"
     },
+
     {
         "name" : "Mangy Wolf",
         "renderable": {
@@ -736,7 +737,6 @@
         },
         "blocks_tile" : true,
         "vision_range" : 8,
-        "ai" : "carnivore",
         "attributes" : {
             "Might" : 3,
             "Fitness" : 3
@@ -752,8 +752,10 @@
             ]   
         },
         "loot_table" : "Animal",
+        "movement" : "static",
         "faction" : "Carnivores"
     },
+
     {
         "name" : "Fox",
         "renderable": {
@@ -764,7 +766,6 @@
         },
         "blocks_tile" : true,
         "vision_range" : 8,
-        "ai" : "melee",
         "attributes" : {
             "Might" : 3,
             "Fitness" : 3
@@ -779,6 +780,7 @@
                 { "name" : "bite", "hit_bonus" : 0, "damage" : "1d4" }
             ]
         },
+        "movement" : "static",
         "faction" : "Carnivores"
     },
 
@@ -792,7 +794,6 @@
         },
         "blocks_tile" : true,
         "vision_range" : 8,
-        "ai" : "herbivore",
         "attributes" : {
             "Might" : 3,
             "Fitness" : 3
@@ -808,6 +809,7 @@
             ]   
         },
         "loot_table" : "Animal",
+        "movement" : "random",
         "faction" : "Herbivores"
     },
 
@@ -821,7 +823,6 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "melee",
         "quips" : [ "Stand and deliver!", "Alright, hand it over" ],
         "attributes" : {},
         "equipped" : [ "Shortsword", "Shield", "Leather Armor", "Leather Boots" ],
@@ -829,6 +830,7 @@
             "range" : 6,
             "color" : "#FFFF55"
         },
+        "movement" : "random_waypoint",
         "faction" : "Bandits"
     },
 
@@ -842,7 +844,6 @@
         },
         "blocks_tile" : true,
         "vision_range" : 6,
-        "ai" : "herbivore",
         "attributes" : {
             "Might" : 3,
             "Fitness" : 3
@@ -857,6 +858,7 @@
                 { "name" : "bite", "hit_bonus" : 0, "damage" : "1d4" }
             ]
         },
+        "movement" : "random",
         "faction" : "Herbivores"
     },
 
@@ -872,13 +874,13 @@
         },
         "blocks_tile" : true,
         "vision_range" : 6,
-        "ai" : "carnivore",
         "natural" : {
             "armor_class" : 12,
             "attacks" : [
                 { "name" : "bite", "hit_bonus" : 1, "damage" : "1d12" }
             ]
         },
+        "movement" : "static",
         "faction" : "Carnivores"
     },
 
@@ -894,17 +896,17 @@
         },
         "blocks_tile" : true,
         "vision_range" : 4,
-        "ai" : "carnivore",
         "natural" : {
             "armor_class" : 12,
             "attacks" : [
                 { "name" : "engulf", "hit_bonus" : 0, "damage" : "1d8" }
-            ]   
+            ]
         },
         "light" : {
             "range" : 4,
             "color" : "#550000"
-        }
+        },
+        "movement" : "static"
     }
 ],
 

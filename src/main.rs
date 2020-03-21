@@ -1,4 +1,4 @@
-use rltk::{font, Console, GameState, Point, Rltk, SimpleConsole};
+use rltk::{Console, GameState, Point, Rltk};
 
 use specs::{
     prelude::*,
@@ -117,12 +117,10 @@ impl State {
         flee.run_now(&self.ecs);
         let mut visible = ai::VisibleAI {};
         visible.run_now(&self.ecs);
-        let mut mob = ai::MonsterAI {};
-        mob.run_now(&self.ecs);
-        let mut bystander = ai::BystanderAI {};
-        bystander.run_now(&self.ecs);
-        let mut animal = ai::AnimalAI {};
-        animal.run_now(&self.ecs);
+        let mut approach = ai::ApproachAI {};
+        approach.run_now(&self.ecs);
+        let mut defaultmove = ai::DefaultMoveAI {};
+        defaultmove.run_now(&self.ecs);
         let mut triggers = TriggerSystem {};
         triggers.run_now(&self.ecs);
         let mut melee = MeleeCombatSystem {};
@@ -209,14 +207,16 @@ impl GameState for State {
                 newrunstate = player_input(self, ctx);
             }
             RunState::Ticking => {
-                self.run_systems();
-                self.ecs.maintain();
-                match *self.ecs.fetch::<RunState>() {
-                    RunState::AwaitingInput => newrunstate = RunState::AwaitingInput,
-                    RunState::MagicMapReveal { .. } => {
-                        newrunstate = RunState::MagicMapReveal { row: 0 }
+                while newrunstate == RunState::Ticking {
+                    self.run_systems();
+                    self.ecs.maintain();
+                    match *self.ecs.fetch::<RunState>() {
+                        RunState::AwaitingInput => newrunstate = RunState::AwaitingInput,
+                        RunState::MagicMapReveal { .. } => {
+                            newrunstate = RunState::MagicMapReveal { row: 0 }
+                        }
+                        _ => newrunstate = RunState::Ticking,
                     }
-                    _ => newrunstate = RunState::Ticking,
                 }
             }
             RunState::ShowInventory => {
@@ -429,7 +429,7 @@ impl State {
 
 fn main() {
     use rltk::RltkBuilder;
-    let mut context = RltkBuilder::simple(TERMINAL_WIDTH, TERMINAL_HEIGHT)
+    let context = RltkBuilder::simple(TERMINAL_WIDTH, TERMINAL_HEIGHT)
         .with_title("Roguelike Tutorial")
         .with_font("Taffer_10x10.png", 10, 10)
         .with_sparse_console(TERMINAL_WIDTH, TERMINAL_HEIGHT / 2, "Taffer_10x10.png")
@@ -454,9 +454,6 @@ fn main() {
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<Player>();
     gs.ecs.register::<Viewshed>();
-    gs.ecs.register::<Monster>();
-    gs.ecs.register::<Bystander>();
-    gs.ecs.register::<Vendor>();
     gs.ecs.register::<Quips>();
     gs.ecs.register::<Name>();
     gs.ecs.register::<BlocksTile>();
@@ -475,6 +472,7 @@ fn main() {
     gs.ecs.register::<Targetable>();
     gs.ecs.register::<Confusion>();
     gs.ecs.register::<SimpleMarker<SerializeMe>>();
+    gs.ecs.register::<DMSerializationHelper>();
     gs.ecs.register::<SerializationHelper>();
     gs.ecs.register::<Equippable>();
     gs.ecs.register::<Equipped>();
@@ -496,8 +494,6 @@ fn main() {
     gs.ecs.register::<Pools>();
     gs.ecs.register::<NaturalAttackDefense>();
     gs.ecs.register::<LootTable>();
-    gs.ecs.register::<Carnivore>();
-    gs.ecs.register::<Herbivore>();
     gs.ecs.register::<OtherLevelPosition>();
     gs.ecs.register::<LightSource>();
     gs.ecs.register::<Initiative>();
@@ -505,7 +501,8 @@ fn main() {
     gs.ecs.register::<Faction>();
     gs.ecs.register::<WantsToApproach>();
     gs.ecs.register::<WantsToFlee>();
-    gs.ecs.register::<DMSerializationHelper>();
+    gs.ecs.register::<MoveMode>();
+    gs.ecs.register::<Chasing>();
 
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 

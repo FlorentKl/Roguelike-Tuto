@@ -1,3 +1,4 @@
+use super::raws::Reaction;
 use super::*;
 use rltk::{Point, Rltk, VirtualKeyCode};
 use std::cmp::{max, min};
@@ -15,8 +16,7 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) -> RunState 
     let mut blocks_visibility = ecs.write_storage::<BlocksVisibility>();
     let mut blocks_movement = ecs.write_storage::<BlocksTile>();
     let mut renderables = ecs.write_storage::<Renderable>();
-    let bystanders = ecs.read_storage::<Bystander>();
-    let vendors = ecs.read_storage::<Vendor>();
+    let factions = ecs.read_storage::<Faction>();
     let mut result = RunState::AwaitingInput;
 
     let mut swap_entities: Vec<(Entity, i32, i32)> = Vec::new();
@@ -34,9 +34,20 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) -> RunState 
         let destination_idx = map.xy_idx(pos.x + delta_x, pos.y + delta_y);
 
         for potential_target in map.tile_content[destination_idx].iter() {
-            let bystander = bystanders.get(*potential_target);
-            let vendor = vendors.get(*potential_target);
-            if bystander.is_some() || vendor.is_some() {
+            let mut hostile = true;
+            if combat_stats.get(*potential_target).is_some() {
+                if let Some(faction) = factions.get(*potential_target) {
+                    let reaction = crate::raws::faction_reaction(
+                        &faction.name,
+                        "Player",
+                        &crate::raws::RAWS.lock().unwrap(),
+                    );
+                    if reaction != Reaction::Attack {
+                        hostile = false;
+                    }
+                }
+            }
+            if !hostile {
                 // Note that we want to move the bystander
                 swap_entities.push((*potential_target, pos.x, pos.y));
 
@@ -176,7 +187,7 @@ fn get_item(ecs: &mut World) {
 fn skip_turn(ecs: &mut World) -> RunState {
     let player_entity = ecs.fetch::<Entity>();
     let viewshed_components = ecs.read_storage::<Viewshed>();
-    let monsters = ecs.read_storage::<Monster>();
+    let factions = ecs.read_storage::<Faction>();
 
     let worldmap_resource = ecs.fetch::<Map>();
 
@@ -185,11 +196,18 @@ fn skip_turn(ecs: &mut World) -> RunState {
     for tile in viewshed.visible_tiles.iter() {
         let idx = worldmap_resource.xy_idx(tile.x, tile.y);
         for entity_id in worldmap_resource.tile_content[idx].iter() {
-            let mob = monsters.get(*entity_id);
-            match mob {
+            let faction = factions.get(*entity_id);
+            match faction {
                 None => {}
-                Some(_) => {
-                    can_heal = false;
+                Some(faction) => {
+                    let reaction = crate::raws::faction_reaction(
+                        &faction.name,
+                        "Player",
+                        &crate::raws::RAWS.lock().unwrap(),
+                    );
+                    if reaction == Reaction::Attack {
+                        can_heal = false;
+                    }
                 }
             }
         }

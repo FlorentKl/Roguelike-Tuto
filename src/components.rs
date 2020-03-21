@@ -58,15 +58,6 @@ pub struct Renderable {
 pub struct Player {}
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
-pub struct Monster {}
-
-#[derive(Component, Debug, Serialize, Deserialize, Clone)]
-pub struct Bystander {}
-
-#[derive(Component, Debug, Serialize, Deserialize, Clone)]
-pub struct Vendor {}
-
-#[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct Quips {
     pub available: Vec<String>,
 }
@@ -255,12 +246,6 @@ pub struct LootTable {
     pub table: String,
 }
 
-#[derive(Component, Debug, Serialize, Deserialize, Clone)]
-pub struct Carnivore {}
-
-#[derive(Component, Debug, Serialize, Deserialize, Clone)]
-pub struct Herbivore {}
-
 #[derive(Component, Serialize, Deserialize, Clone)]
 pub struct OtherLevelPosition {
     pub x: i32,
@@ -334,6 +319,23 @@ pub struct Equipped {
 #[derive(Component, Debug, ConvertSaveload, Clone)]
 pub struct WantsToRemoveItem {
     pub item: Entity,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
+pub enum Movement {
+    Static,
+    Random,
+    RandomWaypoint { path: Option<Vec<usize>> },
+}
+
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct MoveMode {
+    pub mode: Movement,
+}
+
+#[derive(Component, Debug, ConvertSaveload, Clone)]
+pub struct Chasing {
+    pub target: Entity,
 }
 
 // Serialization helper code. We need to implement ConvertSaveLoad for each type that contains an
