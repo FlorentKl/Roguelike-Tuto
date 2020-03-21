@@ -34,7 +34,6 @@ impl RandomTable {
             self.entries
                 .push(RandomEntry::new(name.to_string(), weight));
         }
-
         self
     }
 

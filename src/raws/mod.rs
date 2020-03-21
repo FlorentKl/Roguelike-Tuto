@@ -1,5 +1,6 @@
 use serde::Deserialize;
 
+mod faction_struct;
 mod item_structs;
 mod loot_structs;
 mod mob_structs;
@@ -7,8 +8,9 @@ mod prop_structs;
 mod rawmaster;
 mod spawn_table_structs;
 
+pub use faction_struct::*;
 pub use item_structs::*;
-use loot_structs::*;
+pub use loot_structs::*;
 pub use mob_structs::*;
 pub use prop_structs::*;
 pub use rawmaster::*;
@@ -27,6 +29,7 @@ pub struct Raws {
     pub props: Vec<Prop>,
     pub spawn_table: Vec<SpawnTableEntry>,
     pub loot_tables: Vec<LootTable>,
+    pub faction_table: Vec<FactionInfo>,
 }
 
 rltk::embedded_resource!(RAW_FILE, "../../raws/spawns.json");

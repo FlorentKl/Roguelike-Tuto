@@ -213,14 +213,6 @@ pub fn level_builder(
         _ => random_builder(new_depth, rng, width, height),
     }
 }
-/*
-fn empty_map(new_depth: i32, rng: &mut rltk::RandomNumberGenerator, width: i32, height: i32) -> BuilderChain {
-    let mut builder = BuilderChain::new(new_depth, width, height);
-    builder.start_with(EmptyMapBuilder::new());
-
-    builder.build_data.starting_position = Some(Position{ x: builder.build_data.map.width/2, y: builder.build_data.map.height/2});
-    builder
-}*/
 
 pub fn random_builder(
     new_depth: i32,

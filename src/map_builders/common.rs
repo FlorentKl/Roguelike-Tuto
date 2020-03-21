@@ -23,6 +23,7 @@ pub fn create_horizontal_tunnel(map: &mut Map, x1: i32, x2: i32, y: i32) -> Vec<
             corridor.push(idx as usize);
         }
     }
+
     corridor
 }
 

@@ -1,4 +1,4 @@
-use rltk::{Console, Font, GameState, Point, Rltk, SimpleConsole};
+use rltk::{font, Console, GameState, Point, Rltk, SimpleConsole};
 
 use specs::{
     prelude::*,
@@ -8,9 +8,8 @@ use specs::{
 pub mod camera;
 pub mod map_builders;
 pub mod raws;
-pub mod system_ai_animal;
-pub mod system_ai_bystander;
 
+mod ai;
 mod components;
 mod gamelog;
 mod gamesystem;
@@ -21,10 +20,10 @@ mod random_table;
 mod rect;
 mod rex_assets;
 mod spawner;
-mod system_ai_monster;
 mod system_damage;
 mod system_hunger;
 mod system_inventory;
+mod system_lighting;
 mod system_map_indexing;
 mod system_melee_combat;
 mod system_particle;
@@ -41,10 +40,10 @@ pub use player::*;
 pub use random_table::*;
 pub use rect::*;
 pub use spawner::*;
-pub use system_ai_monster::*;
 pub use system_damage::*;
 pub use system_hunger::*;
 pub use system_inventory::*;
+pub use system_lighting::*;
 pub use system_map_indexing::*;
 pub use system_melee_combat::*;
 pub use system_particle::*;
@@ -68,8 +67,7 @@ extern crate specs_derive;
 pub enum RunState {
     AwaitingInput,
     PreRun,
-    PlayerTurn,
-    MonsterTurn,
+    Ticking,
     ShowInventory,
     ShowDropItem,
     ShowTargeting {
@@ -105,11 +103,25 @@ impl State {
         mapindex.run_now(&self.ecs);
         let mut vis = VisibilitySystem {};
         vis.run_now(&self.ecs);
-        let mut mob = MonsterAI {};
+        let mut initiative = ai::InitiativeSystem {};
+        initiative.run_now(&self.ecs);
+        let mut turnstatus = ai::TurnStatusSystem {};
+        turnstatus.run_now(&self.ecs);
+        let mut quipper = ai::QuipSystem {};
+        quipper.run_now(&self.ecs);
+        let mut adjacent = ai::AdjacentAI {};
+        adjacent.run_now(&self.ecs);
+        let mut approach = ai::ApproachAI {};
+        approach.run_now(&self.ecs);
+        let mut flee = ai::FleeAI {};
+        flee.run_now(&self.ecs);
+        let mut visible = ai::VisibleAI {};
+        visible.run_now(&self.ecs);
+        let mut mob = ai::MonsterAI {};
         mob.run_now(&self.ecs);
-        let mut bystander = system_ai_bystander::BystanderAI {};
+        let mut bystander = ai::BystanderAI {};
         bystander.run_now(&self.ecs);
-        let mut animal = system_ai_animal::AnimalAI {};
+        let mut animal = ai::AnimalAI {};
         animal.run_now(&self.ecs);
         let mut triggers = TriggerSystem {};
         triggers.run_now(&self.ecs);
@@ -129,6 +141,8 @@ impl State {
         hunger.run_now(&self.ecs);
         let mut particles = ParticleSpawnSystem {};
         particles.run_now(&self.ecs);
+        let mut lighting = LightingSystem {};
+        lighting.run_now(&self.ecs);
 
         self.ecs.maintain();
     }
@@ -194,18 +208,16 @@ impl GameState for State {
             RunState::AwaitingInput => {
                 newrunstate = player_input(self, ctx);
             }
-            RunState::PlayerTurn => {
+            RunState::Ticking => {
                 self.run_systems();
+                self.ecs.maintain();
                 match *self.ecs.fetch::<RunState>() {
+                    RunState::AwaitingInput => newrunstate = RunState::AwaitingInput,
                     RunState::MagicMapReveal { .. } => {
                         newrunstate = RunState::MagicMapReveal { row: 0 }
                     }
-                    _ => newrunstate = RunState::MonsterTurn,
+                    _ => newrunstate = RunState::Ticking,
                 }
-            }
-            RunState::MonsterTurn => {
-                self.run_systems();
-                newrunstate = RunState::AwaitingInput;
             }
             RunState::ShowInventory => {
                 let result = gui::show_inventory(self, ctx);
@@ -232,7 +244,7 @@ impl GameState for State {
                                     },
                                 )
                                 .expect("Unable to insert intent");
-                            newrunstate = RunState::PlayerTurn;
+                            newrunstate = RunState::Ticking;
                         }
                     }
                 }
@@ -251,7 +263,7 @@ impl GameState for State {
                                 WantsToDropItem { item: item_entity },
                             )
                             .expect("Unable to insert intent");
-                        newrunstate = RunState::PlayerTurn;
+                        newrunstate = RunState::Ticking;
                     }
                 }
             }
@@ -271,7 +283,7 @@ impl GameState for State {
                                 },
                             )
                             .expect("Unable to insert intent");
-                        newrunstate = RunState::PlayerTurn;
+                        newrunstate = RunState::Ticking;
                     }
                 }
             }
@@ -325,7 +337,7 @@ impl GameState for State {
                                 WantsToRemoveItem { item: item_entity },
                             )
                             .expect("Unable to insert intent");
-                        newrunstate = RunState::PlayerTurn;
+                        newrunstate = RunState::Ticking;
                     }
                 }
             }
@@ -350,7 +362,7 @@ impl GameState for State {
                     map.revealed_tiles[idx] = true;
                 }
                 if row == map.height - 2 {
-                    newrunstate = RunState::MonsterTurn;
+                    newrunstate = RunState::Ticking;
                 } else {
                     newrunstate = RunState::MagicMapReveal { row: row + 1 };
                 }
@@ -416,20 +428,12 @@ impl State {
 }
 
 fn main() {
-    let mut context = Rltk::init_raw(
-        TERMINAL_WIDTH as u32 * 10,
-        TERMINAL_HEIGHT as u32 * 10,
-        "Roguelike Rltk",
-    );
-    let font = context.register_font(Font::load("./resources/Taffer_10x10.png", (10, 10)));
-    context.register_console(
-        SimpleConsole::init(
-            TERMINAL_WIDTH as u32,
-            TERMINAL_HEIGHT as u32,
-            &context.backend,
-        ),
-        font,
-    );
+    use rltk::RltkBuilder;
+    let mut context = RltkBuilder::simple(TERMINAL_WIDTH, TERMINAL_HEIGHT)
+        .with_title("Roguelike Tutorial")
+        .with_font("Taffer_10x10.png", 10, 10)
+        .with_sparse_console(TERMINAL_WIDTH, TERMINAL_HEIGHT / 2, "Taffer_10x10.png")
+        .build();
 
     //let mut context = Rltk::init_simple8x8(80, 50, "Hello Rust World", "resources");
     //context.with_post_scanlines(true);
@@ -495,6 +499,12 @@ fn main() {
     gs.ecs.register::<Carnivore>();
     gs.ecs.register::<Herbivore>();
     gs.ecs.register::<OtherLevelPosition>();
+    gs.ecs.register::<LightSource>();
+    gs.ecs.register::<Initiative>();
+    gs.ecs.register::<MyTurn>();
+    gs.ecs.register::<Faction>();
+    gs.ecs.register::<WantsToApproach>();
+    gs.ecs.register::<WantsToFlee>();
     gs.ecs.register::<DMSerializationHelper>();
 
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());

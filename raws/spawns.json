@@ -8,6 +8,17 @@
     }
 ],
 
+"faction_table" : [
+    { "name" : "Player", "responses": { }},
+    { "name" : "Mindless", "responses": { "Default" : "attack" } },
+    { "name" : "Townsfolk", "responses" : { "Default" : "ignore" } },
+    { "name" : "Bandits", "responses" : { "Default" : "attack" } },
+    { "name" : "Cave Goblins", "responses" : { "Default" : "attack" } },
+    { "name" : "Carnivores", "responses" : { "Default" : "attack" } },
+    { "name" : "Herbivores", "responses" : { "Default" : "flee" } },
+    { "name" : "Hungry Rodents", "responses": { "Default" : "attack", "Hungry Rodents" : "ignore" }}
+],
+
 "spawn_table" : [
     { "name" : "Goblin", "weight" : 10, "min_depth" : 3, "max_depth" : 100 },
     { "name" : "Orc", "weight" : 1, "min_depth" : 3, "max_depth" : 100, "add_map_depth_to_weight" : true },
@@ -17,18 +28,21 @@
     { "name" : "Magic Missile Scroll", "weight" : 4, "min_depth" : 0, "max_depth" : 100 },
     { "name" : "Dagger", "weight" : 3, "min_depth" : 0, "max_depth" : 100 },
     { "name" : "Shield", "weight" : 3, "min_depth" : 0, "max_depth" : 100 },
-    { "name" : "Longsword", "weight" : 1, "min_depth" : 1, "max_depth" : 100 },
-    { "name" : "Tower Shield", "weight" : 1, "min_depth" : 1, "max_depth" : 100 },
+    { "name" : "Longsword", "weight" : 1, "min_depth" : 3, "max_depth" : 100 },
+    { "name" : "Tower Shield", "weight" : 1, "min_depth" : 3, "max_depth" : 100 },
     { "name" : "Rations", "weight" : 10, "min_depth" : 0, "max_depth" : 100 },
     { "name" : "Magic Mapping Scroll", "weight" : 2, "min_depth" : 0, "max_depth" : 100 },
     { "name" : "Bear Trap", "weight" : 5, "min_depth" : 0, "max_depth" : 100 },
     { "name" : "Battleaxe", "weight" : 1, "min_depth" : 2, "max_depth" : 100 },
-    { "name" : "Kobold", "weight" : 15, "min_depth" : 3, "max_depth" : 3 },
-    { "name" : "Rat", "weight" : 15, "min_depth" : 2, "max_depth" : 3 },
-    { "name" : "Mangy Wolf", "weight" : 12, "min_depth" : 2, "max_depth" : 3 },
-    { "name" : "Fox", "weight" : 15, "min_depth" : 2, "max_depth" : 3 },
-    { "name" : "Deer", "weight" : 14, "min_depth" : 2, "max_depth" : 3 },
-    { "name" : "Bandit", "weight" : 9, "min_depth" : 2, "max_depth" : 3 }
+    { "name" : "Kobold", "weight" : 15, "min_depth" : 3, "max_depth" : 5 },
+    { "name" : "Rat", "weight" : 15, "min_depth" : 2, "max_depth" : 2 },
+    { "name" : "Mangy Wolf", "weight" : 13, "min_depth" : 2, "max_depth" : 2 },
+    { "name" : "Deer", "weight" : 14, "min_depth" : 2, "max_depth" : 2 },
+    { "name" : "Fox", "weight" : 15, "min_depth" : 2, "max_depth" : 2 },
+    { "name" : "Bandit", "weight" : 9, "min_depth" : 2, "max_depth" : 3 },
+    { "name" : "Bat", "weight" : 15, "min_depth" : 3, "max_depth" : 3 },
+    { "name" : "Large Spider", "weight" : 3, "min_depth" : 3, "max_depth" : 3 },
+    { "name" : "Gelatinous Cube", "weight" : 3, "min_depth" : 3, "max_depth" : 3 }
 ],
 
 "items" : [
@@ -41,7 +55,7 @@
             "order" : 2
         },
         "consumable" : {
-            "effects" : { 
+            "effects" : {
                 "food" : ""
             }
         }
@@ -433,7 +447,8 @@
         "skills" : {
             "Melee" : 2
         },
-        "equipped" : [ "Cudgel", "Cloth Tunic", "Cloth Pants", "Slippers" ]
+        "equipped" : [ "Cudgel", "Cloth Tunic", "Cloth Pants", "Slippers" ],
+        "faction" : "Townsfolk"
     },
 
     {
@@ -447,7 +462,8 @@
         "blocks_tile" : true,
         "vision_range" : 4,
         "ai" : "vendor",
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -462,7 +478,8 @@
         "vision_range" : 4,
         "ai" : "bystander",
         "quips" : [ "Quiet down, it's too early!", "Oh my, I drank too much.", "Still saving the world, eh?" ],
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -476,7 +493,8 @@
         "blocks_tile" : true,
         "vision_range" : 4,
         "ai" : "bystander",
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -491,7 +509,8 @@
         "vision_range" : 4,
         "ai" : "bystander",
         "quips" : [ "Great to see a new face here!", "I hear there's going to be a good sermon on tea", "Want some cake?" ],
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -505,7 +524,8 @@
         "blocks_tile" : true,
         "vision_range" : 4,
         "ai" : "vendor",
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -519,7 +539,8 @@
         "blocks_tile" : true,
         "vision_range" : 4,
         "ai" : "vendor",
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -533,7 +554,8 @@
         "blocks_tile" : true,
         "vision_range" : 4,
         "ai" : "vendor",
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -548,7 +570,8 @@
         "vision_range" : 4,
         "ai" : "bystander",
         "quips" : [ "Hello, dear", "Off saving the world again?", "Be careful in the dungeon!", "Your father would be so proud, were he here." ],
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -563,7 +586,8 @@
         "vision_range" : 4,
         "ai" : "bystander",
         "quips" : [ "Why are you in my house?" ],
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -578,7 +602,8 @@
         "vision_range" : 4,
         "ai" : "bystander",
         "quips" : [ "Lovely day, eh?", "Nice weather", "Hello" ],
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -593,7 +618,8 @@
         "vision_range" : 4,
         "ai" : "bystander",
         "quips" : [ "They're biting today!", "I caught something, but it wasn't a fish!", "Looks like rain" ],
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -608,7 +634,8 @@
         "vision_range" : 4,
         "ai" : "bystander",
         "quips" : [ "Arrr", "Grog!", "Booze!" ],
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -623,7 +650,8 @@
         "vision_range" : 4,
         "ai" : "bystander",
         "quips" : [ "Hic", "Need... more... booze!", "Spare a copper?" ],
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Townsfolk"
     },
 
     {
@@ -650,7 +678,8 @@
             "attacks" : [
                 { "name" : "bite", "hit_bonus" : 0, "damage" : "1d4" }
             ]   
-        }
+        },
+        "faction" : "Hungry Rodents"
     },
 
     {
@@ -664,7 +693,8 @@
         "blocks_tile" : true,
         "vision_range" : 8,
         "ai" : "melee",
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Cave Goblins"
     },
 
     {
@@ -678,7 +708,8 @@
         "blocks_tile" : true,
         "vision_range" : 8,
         "ai" : "melee",
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Cave Goblins"
     },
 
     {
@@ -692,7 +723,8 @@
         "blocks_tile" : true,
         "vision_range" : 4,
         "ai" : "melee",
-        "attributes" : {}
+        "attributes" : {},
+        "faction" : "Cave Goblins"
     },
     {
         "name" : "Mangy Wolf",
@@ -719,7 +751,8 @@
                 { "name" : "bite", "hit_bonus" : 0, "damage" : "1d6" }
             ]   
         },
-        "loot_table" : "Animal"
+        "loot_table" : "Animal",
+        "faction" : "Carnivores"
     },
     {
         "name" : "Fox",
@@ -744,8 +777,9 @@
             "armor_class" : 11,
             "attacks" : [
                 { "name" : "bite", "hit_bonus" : 0, "damage" : "1d4" }
-            ]   
-        }
+            ]
+        },
+        "faction" : "Carnivores"
     },
 
     {
@@ -773,7 +807,8 @@
                 { "name" : "bite", "hit_bonus" : 0, "damage" : "1d4" }
             ]   
         },
-        "loot_table" : "Animal"
+        "loot_table" : "Animal",
+        "faction" : "Herbivores"
     },
 
     {
@@ -789,7 +824,87 @@
         "ai" : "melee",
         "quips" : [ "Stand and deliver!", "Alright, hand it over" ],
         "attributes" : {},
-        "equipped" : [ "Shortsword", "Shield", "Leather Armor", "Leather Boots" ]
+        "equipped" : [ "Shortsword", "Shield", "Leather Armor", "Leather Boots" ],
+        "light" : {
+            "range" : 6,
+            "color" : "#FFFF55"
+        },
+        "faction" : "Bandits"
+    },
+
+    {
+        "name" : "Bat",
+        "renderable": {
+            "glyph" : "b",
+            "fg" : "#995555",
+            "bg" : "#000000",
+            "order" : 1
+        },
+        "blocks_tile" : true,
+        "vision_range" : 6,
+        "ai" : "herbivore",
+        "attributes" : {
+            "Might" : 3,
+            "Fitness" : 3
+        },
+        "skills" : {
+            "Melee" : -1,
+            "Defense" : -1
+        },
+        "natural" : {
+            "armor_class" : 11,
+            "attacks" : [
+                { "name" : "bite", "hit_bonus" : 0, "damage" : "1d4" }
+            ]
+        },
+        "faction" : "Herbivores"
+    },
+
+    {
+        "name" : "Large Spider",
+        "level" : 2,
+        "attributes" : {},
+        "renderable": {
+            "glyph" : "s",
+            "fg" : "#FF0000",
+            "bg" : "#000000",
+            "order" : 1
+        },
+        "blocks_tile" : true,
+        "vision_range" : 6,
+        "ai" : "carnivore",
+        "natural" : {
+            "armor_class" : 12,
+            "attacks" : [
+                { "name" : "bite", "hit_bonus" : 1, "damage" : "1d12" }
+            ]
+        },
+        "faction" : "Carnivores"
+    },
+
+    {
+        "name" : "Gelatinous Cube",
+        "level" : 2,
+        "attributes" : {},
+        "renderable": {
+            "glyph" : "▄",
+            "fg" : "#FF0000",
+            "bg" : "#000000",
+            "order" : 1
+        },
+        "blocks_tile" : true,
+        "vision_range" : 4,
+        "ai" : "carnivore",
+        "natural" : {
+            "armor_class" : 12,
+            "attacks" : [
+                { "name" : "engulf", "hit_bonus" : 0, "damage" : "1d8" }
+            ]   
+        },
+        "light" : {
+            "range" : 4,
+            "color" : "#550000"
+        }
     }
 ],
 

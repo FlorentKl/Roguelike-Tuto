@@ -74,7 +74,7 @@ impl YellowBrickRoad {
 
     fn build(&mut self, rng: &mut RandomNumberGenerator, build_data: &mut BuilderMap) {
         let starting_pos = build_data.starting_position.as_ref().unwrap().clone();
-        let start_idx = build_data.map.xy_idx(starting_pos.x, starting_pos.y) as i32;
+        let start_idx = build_data.map.xy_idx(starting_pos.x, starting_pos.y);
 
         let (end_x, end_y) = self.find_exit(
             build_data,
@@ -85,13 +85,13 @@ impl YellowBrickRoad {
         build_data.map.tiles[end_idx] = TileType::DownStairs;
 
         build_data.map.populate_blocked();
-        let path = rltk::a_star_search(start_idx, end_idx as i32, &mut build_data.map);
+        let path = rltk::a_star_search(start_idx, end_idx, &mut build_data.map);
         //if !path.success {
         //    panic!("No valid path for the road");
         //}
         for idx in path.steps.iter() {
-            let x = idx % build_data.map.width;
-            let y = idx / build_data.map.width;
+            let x = *idx as i32 % build_data.map.width;
+            let y = *idx as i32 / build_data.map.width;
             self.paint_road(build_data, x, y);
             self.paint_road(build_data, x - 1, y);
             self.paint_road(build_data, x + 1, y);
